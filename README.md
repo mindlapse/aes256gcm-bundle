@@ -76,7 +76,7 @@ The key used for encryption is the SHA-256 of the key that you provide when crea
 
 ## Key rotation / identification
 
-To support key rotation/identification, you can pass an optional `keyName` parameter to `encrypt(text, keyName)`. The default prefix is `0` when `keyName` is not specified. The `keyName` parameter changes the prefix on your bundle to a tag that allows you to later identify which key was used to to encrypt the bundle, under your own naming conventions. The name should be short but meaningful (example `prod1`), cannot include the `.` character, and should be changed alongside a key rotation (e.g. to `prod2`).
+To support key rotation/identification, you can pass an optional `keyName` parameter to `encrypt(text, keyName)`. The default prefix is `0` when `keyName` is not specified. The `keyName` parameter changes the prefix on your bundle to a tag that allows you to later identify which key was used to encrypt the bundle, under your own naming conventions. The name should be short but meaningful (example `prod1`), cannot include the `.` character, and should be changed alongside a key rotation (e.g. to `prod2`).
 
 It is up to you to determine an appropriate key rotation schedule - after a billion encryptions with the same key, it is probably time to choose a new key!
 Since the IV is randomly generated, there is a very small chance of a duplicate IV after many encryptions - this is significant known risk for AES256-GCM, 
