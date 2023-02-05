@@ -16,8 +16,7 @@ npm i aes256gcm-bundle
 ```
 
 
-## Generate a key 
-Generate a symmetric key
+## Create a symmetric key 
 ```typescript
 import crypto from 'node:crypto'
 
