@@ -4,25 +4,6 @@ A simple way to encrypt/decrypt fields to/from a string bundle, using AES256-GCM
 
 ---
 
-## Bundle format
-
-Text passed to `encrypt()` creates a bundle in this dot-separated format: `keyName.iv.authTag.cipherText`.
-
-Example bundle:
-
-`prod1.2N6zOPNuH-3C8vFY.ZGhXywwmEgf14YR2shaiqQ.TIK7rtKvcqrEjG4`
-
-### Bundle components
-
-- The `keyName` is just a moniker that is set to `0` by default, but you can override it to denote (to you) which key was used to encrypt the bundle. It can be set to a meaningful value (e.g. `prod0`) and should be changed when rotating keys.
-
-- The `iv` and `authTag` components are opaque base64url-encoded values that are needed to successfully decrypt the bundle.
-
-- The `cipherText` component of the bundle is the AES256-GCM encryption of the plain text (with a random IV), encoded to a base64url string.
-The key used for encryption is the SHA-256 of the key that you provide when creating a `CipherBundle` (described below).
-
----
-
 ## Installation
 ```bash
 
@@ -30,16 +11,30 @@ npm i aes256gcm-bundle
 
 ```
 
-## Import
+---
+
+## Encrypt / Decrypt
 ```typescript
 
 import CipherBundle from 'aes256gcm-bundle'
+
+
+const cb = new CipherBundle(base64urlEncodedKey)
+
+const bundle = cb.encrypt('Hello world')
+
+// e.g.: "0.YFG9joOntVvgLLYQ.QL7k4BFI8ot8PJeqTXOyXQ.fQGNGGwvoKEQXg0"
+
+const plainText = cb.decrypt(bundle)
+
+// e.g.: "Hello world"
+
 
 ```
 
 ---
 
-## Create a CipherBundle
+## Creating a CipherBundle
 use a randomly generated base64url-encoded key (very secure)
 ```typescript
 
@@ -60,24 +55,22 @@ cb = new CipherBundle(veryStrongPassword, 'utf8')
 
 ---
 
-## Encrypt
-```typescript
+## Bundle format
 
-const bundle = cb.encrypt('Hello world')
+Text passed to `encrypt()` creates a bundle in this dot-separated format: `keyName.iv.authTag.cipherText`.
 
-// example bundle: 0.YFG9joOntVvgLLYQ.QL7k4BFI8ot8PJeqTXOyXQ.fQGNGGwvoKEQXg0
+Example bundle:
 
-```
+`prod1.2N6zOPNuH-3C8vFY.ZGhXywwmEgf14YR2shaiqQ.TIK7rtKvcqrEjG4`
 
+### Bundle components
 
-## Decrypt
-```typescript
+- The `keyName` is just a moniker that is set to `0` by default, but you can override it to denote (to you) which key was used to encrypt the bundle. It can be set to a meaningful value (e.g. `prod0`) and should be changed when rotating keys.
 
-const plainText = cb.decrypt("0.YFG9joOntVvgLLYQ.QL7k4BFI8ot8PJeqTXOyXQ.fQGNGGwvoKEQXg0")
+- The `iv` and `authTag` components are opaque base64url-encoded values that are needed to successfully decrypt the bundle.
 
-// example plainText: Hello world
-
-```
+- The `cipherText` component of the bundle is the AES256-GCM encryption of the plain text (with a random IV), encoded to a base64url string.
+The key used for encryption is the SHA-256 of the key that you provide when creating a `CipherBundle` (described below).
 
 ---
 
