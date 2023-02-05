@@ -1,0 +1,26 @@
+{
+  "name": "aes256gcm-bundle",
+  "version": "1.0.0",
+  "description": "AES256-GCM encrypt/decrypt text to/from a base64url-encoded bundle with the format: keyId.iv.authTag.cipherText",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "AES256-GCM",
+    "cipher",
+    "encrypt",
+    "decrypt"
+  ],
+  "author": "Dave MacDonald",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.4.1",
+    "jest": "^29.4.1",
+    "ts-jest": "^29.0.5"
+  }
+}
