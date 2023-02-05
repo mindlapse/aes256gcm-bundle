@@ -8,31 +8,33 @@ class CipherBundle {
     /**
      * @param cipherKey A base64url encoded 256-bit key
      */
-    constructor(cipherKey) {
-        this.key = node_crypto_1.default.createSecretKey(cipherKey, CipherBundle.ENCODING);
+    constructor(cipherKey, encoding = 'base64url') {
+        const cipherKeyHash = node_crypto_1.default.createHash('sha256');
+        cipherKeyHash.update(cipherKey, encoding);
+        this.key = node_crypto_1.default.createSecretKey(cipherKeyHash.digest());
     }
     /**
      * Encrypt text with AES256-GCM (with a random IV), into a base64url encoded
      * bundle in the format below.  The bundle can be decrypted via decrypt(bundle)
      *
-     *   keyIdx.iv.authTag.cipherText
+     *   keyName.iv.authTag.cipherText
      *
      * @param plainText The text to encrypt
      *
-     * @param keyIdx
-     * (Optional) Defaults to 0.  An arbitrary number to identify the
+     * @param keyName
+     * (Optional) Defaults to 0.  An arbitrary tag to identify the
      * encryption key.  Useful with periodic key rotation.
      *
      * @returns The cipher bundle
      */
-    encrypt(plainText, keyIdx = 0) {
+    encrypt(plainText, keyName = "0") {
         const iv = node_crypto_1.default.randomBytes(CipherBundle.IV_LENGTH);
         const cipher = node_crypto_1.default.createCipheriv(CipherBundle.CIPHER, this.key, iv);
         const cipherText = cipher.update(plainText, 'utf8');
         cipher.final();
         const authTag = cipher.getAuthTag();
         const ENC = CipherBundle.ENCODING;
-        return new ParsedBundle(keyIdx, iv.toString(ENC), authTag.toString(ENC), cipherText.toString(ENC)).toString();
+        return new ParsedBundle(keyName, iv.toString(ENC), authTag.toString(ENC), cipherText.toString(ENC)).toString();
     }
     /**
      * Decrypt a string produced by the encrypt method (under the same key)
@@ -41,7 +43,7 @@ class CipherBundle {
      * A bundle string produced by the encrypt(plainText) method.
      * A bundle has this format:
      *
-     *   keyIdx.iv.authTag.cipherText
+     *   keyName.iv.authTag.cipherText
      *
      */
     decrypt(bundle) {
@@ -60,8 +62,8 @@ CipherBundle.ENCODING = 'base64url';
 CipherBundle.CIPHER = 'id-aes256-GCM';
 CipherBundle.IV_LENGTH = 12;
 class ParsedBundle {
-    constructor(keyIdx, iv, authTag, cipherText) {
-        this.keyIdx = keyIdx;
+    constructor(keyName, iv, authTag, cipherText) {
+        this.keyName = keyName;
         this.iv = iv;
         this.authTag = authTag;
         this.cipherText = cipherText;
@@ -76,10 +78,10 @@ class ParsedBundle {
         return Buffer.from(this.cipherText, encoding);
     }
     toString() {
-        return `${this.keyIdx}.${this.iv}.${this.authTag}.${this.cipherText}`;
+        return `${this.keyName}.${this.iv}.${this.authTag}.${this.cipherText}`;
     }
     static fromString(bundle) {
         const components = bundle.split('.');
-        return new ParsedBundle(parseInt(components[0]), components[1], components[2], components[3]);
+        return new ParsedBundle(components[0], components[1], components[2], components[3]);
     }
 }

@@ -10,25 +10,27 @@ export default class CipherBundle {
     /**
      * @param cipherKey A base64url encoded 256-bit key
      */
-    constructor(cipherKey: string) {
-        this.key = crypto.createSecretKey(cipherKey, CipherBundle.ENCODING)
+    constructor(cipherKey: string, encoding: BufferEncoding = 'base64url') {
+        const cipherKeyHash = crypto.createHash('sha256')
+        cipherKeyHash.update(cipherKey, encoding)
+        this.key = crypto.createSecretKey(cipherKeyHash.digest())
     }
 
     /**
      * Encrypt text with AES256-GCM (with a random IV), into a base64url encoded
      * bundle in the format below.  The bundle can be decrypted via decrypt(bundle)
      *
-     *   keyIdx.iv.authTag.cipherText
+     *   keyName.iv.authTag.cipherText
      *
      * @param plainText The text to encrypt
      *
-     * @param keyIdx
-     * (Optional) Defaults to 0.  An arbitrary number to identify the
+     * @param keyName
+     * (Optional) Defaults to 0.  An arbitrary tag to identify the
      * encryption key.  Useful with periodic key rotation.
      *
      * @returns The cipher bundle
      */
-    encrypt(plainText: string, keyIdx = 0): string {
+    encrypt(plainText: string, keyName: string = "0"): string {
         const iv = crypto.randomBytes(CipherBundle.IV_LENGTH)
         const cipher = crypto.createCipheriv(
             CipherBundle.CIPHER,
@@ -43,7 +45,7 @@ export default class CipherBundle {
         const ENC = CipherBundle.ENCODING
 
         return new ParsedBundle(
-            keyIdx,
+            keyName,
             iv.toString(ENC),
             authTag.toString(ENC),
             cipherText.toString(ENC)
@@ -57,7 +59,7 @@ export default class CipherBundle {
      * A bundle string produced by the encrypt(plainText) method.
      * A bundle has this format:
      *
-     *   keyIdx.iv.authTag.cipherText
+     *   keyName.iv.authTag.cipherText
      *
      */
     decrypt(bundle: string): string {
@@ -81,18 +83,18 @@ export default class CipherBundle {
 }
 
 class ParsedBundle {
-    keyIdx: number
+    keyName: string
     iv: string
     authTag: string
     cipherText: string
 
     constructor(
-        keyIdx: number,
+        keyName: string,
         iv: string,
         authTag: string,
         cipherText: string
     ) {
-        this.keyIdx = keyIdx
+        this.keyName = keyName
         this.iv = iv
         this.authTag = authTag
         this.cipherText = cipherText
@@ -111,14 +113,14 @@ class ParsedBundle {
     }
 
     toString() {
-        return `${this.keyIdx}.${this.iv}.${this.authTag}.${this.cipherText}`
+        return `${this.keyName}.${this.iv}.${this.authTag}.${this.cipherText}`
     }
 
     static fromString(bundle: string): ParsedBundle {
         const components = bundle.split('.')
 
         return new ParsedBundle(
-            parseInt(components[0]),
+            components[0],
             components[1],
             components[2],
             components[3]
