@@ -2,7 +2,8 @@
   "name": "aes256gcm-bundle",
   "version": "2.0.4",
   "description": "AES256-GCM encrypt/decrypt text to/from a base64url-encoded bundle with the format: keyId.iv.authTag.cipherText",
-  "main": "dist/CipherBundle.js",
+  "main": "./dist/CipherBundle.js",
+  "types": "./types/CipherBundle.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest"
