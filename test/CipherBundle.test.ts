@@ -1,6 +1,6 @@
 import crypto from 'node:crypto'
 
-import CipherBundle from '../src/CipherBundle'
+import CipherBundle from '../src/CipherBundle.js'
 import { expect, describe, it } from '@jest/globals'
 
 describe('CipherBundle', () => {

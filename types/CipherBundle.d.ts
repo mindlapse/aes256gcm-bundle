@@ -1,4 +1,4 @@
-/// <reference types="node" />
+/// <reference types="node" resolution-mode="require"/>
 export default class CipherBundle {
     static ENCODING: BufferEncoding;
     private key;
